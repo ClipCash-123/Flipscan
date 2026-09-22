@@ -1,38 +1,33 @@
-name: Build and Deploy FlipScan Web App
+name: Build FlipScan Mac App
 on:
   push:
     branches: [main]
   workflow_dispatch:
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
 jobs:
-  validate:
-    runs-on: ubuntu-latest
+  mac:
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --check app.js
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - name: Install dependencies
+        run: npm install
+      - name: Validate app
+        run: npm run check
+      - name: Build Mac installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run dist:mac
+      - name: Verify installer
+        run: |
+          ls -lah dist
+          find dist -maxdepth 1 -name "*.dmg" -print -quit | grep .
+          find dist -maxdepth 1 -name "*.zip" -print -quit | grep .
+      - name: Upload FlipScan Mac app
+        uses: actions/upload-artifact@v4
         with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - name: Deploy FlipScan
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: FlipScan-Mac-v0.6
+          path: |
+            dist/*.dmg
+            dist/*.zip
