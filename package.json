@@ -1,1 +1,24 @@
-{"name":"flipscan","version":"0.5.0","private":true,"scripts":{"check":"node --check app.js","start":"npx serve ."},"devDependencies":{"serve":"^14.2.4"}}
+{
+  "name":"flipscan",
+  "version":"0.6.0",
+  "private":true,
+  "main":"electron.js",
+  "scripts":{
+    "check":"node --check app.js && node --check electron.js",
+    "start":"npx serve .",
+    "desktop":"electron .",
+    "dist:mac":"electron-builder --mac dmg zip"
+  },
+  "devDependencies":{
+    "electron":"^38.1.2",
+    "electron-builder":"^26.0.12",
+    "serve":"^14.2.4"
+  },
+  "build":{
+    "appId":"com.flipscan.app",
+    "productName":"FlipScan",
+    "files":["index.html","style.css","app.js","electron.js","package.json"],
+    "mac":{"target":["dmg","zip"],"category":"public.app-category.business"},
+    "dmg":{"title":"FlipScan"}
+  }
+}
